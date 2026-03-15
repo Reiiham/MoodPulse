@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MoodPulse — Your Music, Your Mood</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0b14;
+  --surface:#13111f;
+  --surface2:#1a1728;
+  --border:#2a2440;
+  --text:#f0ecff;
+  --muted:#9b91b8;
+  --accent:#a594f9;
+  --accent2:#7c6fcd;
+  --teal:#5dc4b0;
+  --pink:#f0c4d4;
+  --card:#1e1a2e;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── BACKGROUND ── */
+.bg-orbs{position:fixed;inset:0;pointer-events:none;z-index:0}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);animation:orb-float 10s ease-in-out infinite}
+.orb-1{width:400px;height:400px;background:#3d2f7a;top:-100px;right:-100px;opacity:0.4;animation-delay:0s}
+.orb-2{width:300px;height:300px;background:#1a4a40;bottom:10%;left:-80px;opacity:0.35;animation-delay:4s}
+.orb-3{width:200px;height:200px;background:#5a2d50;top:50%;right:5%;opacity:0.3;animation-delay:7s}
+@keyframes orb-float{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-20px)}}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(13,11,20,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text)}
+.nav-logo span{color:var(--accent)}
+.nav-tag{font-size:12px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:4px 12px;border-radius:100px}
+
+/* ── HERO ── */
+.hero{min-height:calc(100vh - 64px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:7px 16px;font-size:12px;font-weight:500;color:var(--accent);margin-bottom:28px}
+.badge-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
+h1{font-family:'DM Serif Display',serif;font-size:clamp(40px,7vw,72px);line-height:1.05;letter-spacing:-2px;margin-bottom:20px}
+h1 em{color:var(--accent);font-style:italic}
+.hero-sub{font-size:17px;color:var(--muted);line-height:1.7;max-width:480px;margin-bottom:40px}
+
+/* ── CONNECT BUTTON ── */
+.period-btn {
+  padding: 8px 20px;
+  border-radius: 100px;
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.period-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.period-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.btn-spotify{display:inline-flex;align-items:center;gap:12px;padding:16px 36px;border-radius:100px;background:#1db954;color:#fff;font-size:15px;font-weight:600;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px}
+.btn-spotify:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(29,185,84,0.3)}
+.btn-spotify:active{transform:scale(0.97)}
+.btn-spotify svg{width:22px;height:22px;flex-shrink:0}
+
+.btn-demo{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:100px;background:transparent;color:var(--muted);font-size:14px;font-weight:500;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;margin-left:12px}
+.btn-demo:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── HOW IT WORKS ── */
+.how-section{position:relative;z-index:1;padding:60px 40px;text-align:center}
+.steps{display:flex;justify-content:center;gap:0;max-width:700px;margin:32px auto 0;position:relative}
+.steps::before{content:'';position:absolute;top:28px;left:15%;right:15%;height:1px;background:var(--border);z-index:0}
+.step{flex:1;display:flex;flex-direction:column;align-items:center;gap:12px;position:relative;z-index:1}
+.step-num{width:56px;height:56px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px}
+.step-label{font-size:13px;color:var(--muted);font-weight:500;max-width:100px;line-height:1.4;text-align:center}
+
+/* ── LOADING ── */
+#loading{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:24px;position:relative;z-index:1}
+.spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:15px;color:var(--muted);animation:fade-cycle 2s ease-in-out infinite}
+@keyframes fade-cycle{0%,100%{opacity:0.4}50%{opacity:1}}
+
+/* ── RESULTS ── */
+#results{display:none;position:relative;z-index:1;padding:40px 20px;max-width:1000px;margin:0 auto}
+
+/* Mood headline */
+.mood-headline{text-align:center;margin-bottom:48px}
+.mood-emoji-big{font-size:64px;display:block;margin-bottom:12px;animation:emoji-pop 0.5s cubic-bezier(0.175,0.885,0.32,1.275)}
+@keyframes emoji-pop{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
+.mood-title{font-family:'DM Serif Display',serif;font-size:36px;letter-spacing:-1px;margin-bottom:8px}
+.mood-summary{font-size:16px;color:var(--muted);max-width:480px;margin:0 auto;line-height:1.7}
+.mood-confidence{display:inline-block;margin-top:12px;font-size:12px;font-weight:500;color:var(--accent);background:var(--surface2);border:1px solid var(--border);padding:4px 14px;border-radius:100px}
+
+/* Grid layout */
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px}
+@media(max-width:700px){.results-grid{grid-template-columns:1fr}}
+
+/* Cards */
+.result-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px}
+.card-title{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:20px}
+
+/* Radar */
+.radar-wrap{position:relative;height:280px;display:flex;align-items:center;justify-content:center}
+
+/* Score bars */
+.score-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.score-emoji{font-size:18px;width:24px;text-align:center}
+.score-label{font-size:13px;font-weight:500;width:64px;color:var(--text)}
+.score-track{flex:1;height:6px;background:var(--surface2);border-radius:100px;overflow:hidden}
+.score-fill{height:100%;border-radius:100px;background:var(--accent);transition:width 1.2s cubic-bezier(0.4,0,0.2,1)}
+.score-pct{font-size:12px;color:var(--muted);width:36px;text-align:right}
+
+/* Song cards */
+.songs-section{margin-bottom:32px}
+.songs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.song-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;transition:transform 0.2s,border-color 0.2s}
+.song-card:hover{transform:translateY(-3px);border-color:var(--accent2)}
+.song-img{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;margin-bottom:12px;background:var(--surface2)}
+.song-title{font-size:13px;font-weight:500;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-artist{font-size:12px;color:var(--muted);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-emotion{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:100px;background:var(--surface2);color:var(--accent)}
+
+/* Retry */
+.retry-wrap{text-align:center;margin-top:32px}
+.btn-retry{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:100px;background:var(--surface2);color:var(--text);font-size:14px;font-weight:500;border:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+.btn-retry:hover{border-color:var(--accent);color:var(--accent)}
+
+footer{text-align:center;padding:32px 20px;font-size:12px;color:var(--muted);position:relative;z-index:1;border-top:1px solid var(--border);margin-top:40px}
+footer a{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<nav>
+  <div class="nav-logo">Mood<span>Pulse</span></div>
+  <div class="nav-tag">🎵 Music × ML</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-badge"><span class="badge-dot"></span>Powered by fine-tuned DistilBERT</div>
+  <h1>Your music reveals<br>your <em>mood</em></h1>
+  <p class="hero-sub">Connect your Spotify account and we'll analyze your top 5 tracks to reveal what you're really feeling this week.</p>
+  <div>
+  <!-- Period selector -->
+  <div style="margin-bottom: 24px;">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;font-weight:500">
+      Analyze my listening from
+    </p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap" id="period-selector">
+      <button class="period-btn" data-period="short_term" onclick="selectPeriod(this)">
+        Last 4 weeks
+      </button>
+      <button class="period-btn active" data-period="medium_term" onclick="selectPeriod(this)">
+        Last 6 months
+      </button>
+      <button class="period-btn" data-period="long_term" onclick="selectPeriod(this)">
+        All time
+      </button>
+    </div>
+  </div>
+
+  <button class="btn-spotify" onclick="connectSpotify()">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+    Connect with Spotify
+  </button>
+  <button class="btn-demo" onclick="loadDemo()">Try demo</button>
+</div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <p style="font-size:12px;font-weight:500;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">How it works</p>
+  <h2 style="font-family:'DM Serif Display',serif;font-size:28px;letter-spacing:-0.5px">Three steps to your mood</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">🎵</div>
+      <div class="step-label">Connect Spotify</div>
+    </div>
+    <div class="step">
+      <div class="step-num">🧠</div>
+      <div class="step-label">AI analyzes lyrics</div>
+    </div>
+    <div class="step">
+      <div class="step-num">📊</div>
+      <div class="step-label">See your mood</div>
+    </div>
+  </div>
+</section>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="spinner"></div>
+  <p class="loading-text" id="loading-text">Fetching your top tracks...</p>
+</div>
+
+<!-- RESULTS -->
+<div id="results">
+  <div class="mood-headline">
+    <span class="mood-emoji-big" id="mood-emoji">😢</span>
+    <h2 class="mood-title" id="mood-title">Your dominant mood this week</h2>
+    <p class="mood-summary" id="mood-summary"></p>
+    <span class="mood-confidence" id="mood-confidence"></span>
+  </div>
+
+  <div class="results-grid">
+    <!-- Radar -->
+    <div class="result-card">
+      <div class="card-title">Mood radar</div>
+      <div class="radar-wrap"><canvas id="radar-chart"></canvas></div>
+    </div>
+
+    <!-- Bars -->
+    <div class="result-card">
+      <div class="card-title">Emotion breakdown</div>
+      <div id="score-bars"></div>
+    </div>
+  </div>
+
+  <!-- Songs -->
+  <div class="songs-section">
+    <div class="result-card">
+      <div class="card-title">Your top tracks this week</div>
+      <div class="songs-grid" id="songs-grid"></div>
+    </div>
+  </div>
+
+  <div class="retry-wrap">
+    <button class="btn-retry" onclick="reset()">↩ Analyze again</button>
+  </div>
+</div>
+
+<footer>
+  Built by <a href="https://github.com/Reiiham" target="_blank">Reiiham</a> ·
+  Fine-tuned DistilBERT on GoEmotions ·
+  <a href="https://huggingface.co/reiiham/moodpulse-emotion" target="_blank">Model on HuggingFace</a>
+</footer>
+
+<script>
+// ── CONFIG — update these ─────────────────────────────────────
+const GATEWAY_URL = 'http://127.0.0.1:8080';  // Spring Boot gateway
+const SPOTIFY_LOGIN = `${GATEWAY_URL}/login`;   // redirects to Spotify
+
+// ── Emoji + color map ─────────────────────────────────────────
+const MOOD_META = {
+    joy:     { emoji: '😄', color: '#f4d03f', label: 'Joy'     },
+    sadness: { emoji: '😢', color: '#5dade2', label: 'Sadness' },
+    anger:   { emoji: '😠', color: '#e74c3c', label: 'Anger'   },
+    fear:    { emoji: '😨', color: '#8e44ad', label: 'Fear'    },
+    love:    { emoji: '💖', color: '#e91e8c', label: 'Love'    },
+};
+
+function renderRadar(scores) {
+    if (radarChart) { radarChart.destroy(); }
+
+    // Filter out surprise
+    const filteredScores = Object.fromEntries(
+        Object.entries(scores).filter(([k]) => k !== 'surprise')
+    );
+
+    const labels = Object.keys(filteredScores).map(k =>
+        `${MOOD_META[k].emoji} ${MOOD_META[k].label}`
+    );
+    const values = Object.values(filteredScores).map(v => Math.round(v * 100));
+    // rest stays the same
+}
+
+function renderBars(scores) {
+    const container = document.getElementById('score-bars');
+    container.innerHTML = '';
+
+    // Filter out surprise
+    const sorted = Object.entries(scores)
+        .filter(([k]) => k !== 'surprise')
+        .sort((a, b) => b[1] - a[1]);
+
+    // rest stays the same
+}
+
+const LOADING_MSGS = [
+  'Fetching your top tracks...',
+  'Reading the lyrics...',
+  'Running emotion model...',
+  'Fusing audio features...',
+  'Crafting your mood report...',
+];
+
+let radarChart = null;
+
+// ── Spotify OAuth ─────────────────────────────────────────────
+function connectSpotify() {
+  window.location.href = SPOTIFY_LOGIN;
+}
+
+// ── On page load — check for token in URL (after OAuth callback) ──
+/*
+window.addEventListener('load', () => {
+    const params = new URLSearchParams(window.location.search);
+    const token  = params.get('access_token');
+    console.log('Token from URL:', token ? token.substring(0, 20) + '...' : 'NOT FOUND');
+    if (token) {
+        window.history.replaceState({}, '', window.location.pathname);
+        analyzeWithToken(token);
+    }
+});
+*/
+window.addEventListener('load', () => {
+    const params = new URLSearchParams(window.location.search);
+    const token  = params.get('access_token');
+    const error  = params.get('error');
+    const period = params.get('period') || 'medium_term';
+
+    if (error) { alert('Spotify error: ' + error); return; }
+    if (token)  { analyzeWithToken(token, period); }
+});
+
+// Add selected period variable
+let selectedPeriod = 'medium_term';
+
+function selectPeriod(btn) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedPeriod = btn.dataset.period;
+}
+
+function connectSpotify() {
+  // Pass period as state parameter
+  window.location.href = `${GATEWAY_URL}/login?period=${selectedPeriod}`;
+}
+
+// ── Loading messages cycle ────────────────────────────────────
+function showLoading() {
+  document.getElementById('hero').style.display    = 'none';
+  document.getElementById('how').style.display     = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('loading').style.display = 'flex';
+
+  let i = 0;
+  const el = document.getElementById('loading-text');
+  const iv = setInterval(() => {
+    el.style.opacity = 0;
+    setTimeout(() => {
+      el.textContent  = LOADING_MSGS[i % LOADING_MSGS.length];
+      el.style.opacity = 1;
+      i++;
+    }, 300);
+  }, 1800);
+  return iv;
+}
+
+function hideLoading(iv) {
+  clearInterval(iv);
+  document.getElementById('loading').style.display = 'none';
+}
+
+// ── Fetch + render ────────────────────────────────────────────
+/*
+async function analyzeWithToken(accessToken) {
+    console.log('Calling analyze with token:', accessToken.substring(0, 20) + '...');
+    const iv = showLoading();
+    try {
+        const resp = await fetch(`${GATEWAY_URL}/api/mood/analyze`, {
+            method: 'GET',
+            headers: { 
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log('Response status:', resp.status);
+        if (!resp.ok) {
+            const errText = await resp.text();
+            console.error('API error body:', errText);
+            throw new Error(`API error: ${resp.status} — ${errText}`);
+        }
+        const data = await resp.json();
+        hideLoading(iv);
+        renderResults(data);
+    } catch (err) {
+        console.error('Full error:', err);
+        hideLoading(iv);
+        alert('Something went wrong: ' + err.message);
+        reset();
+    }
+}
+    */ 
+async function analyzeWithToken(accessToken, period = 'medium_term') {
+    console.log('Starting analysis, period:', period);
+    const iv = showLoading();
+    try {
+        const resp = await fetch(
+            `${GATEWAY_URL}/api/mood/analyze?period=${period}`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        const responseText = await resp.text();
+        if (!resp.ok) throw new Error(`${resp.status}: ${responseText}`);
+
+        const data = JSON.parse(responseText);
+        hideLoading(iv);
+        renderResults(data, period);
+
+    } catch (err) {
+        console.error('Full error:', err.message);
+        hideLoading(iv);
+        alert('Error: ' + err.message);
+        reset();
+    }
+}
+
+// ── Demo data (no Spotify needed) ────────────────────────────
+function loadDemo() {
+  const iv = showLoading();
+  setTimeout(() => {
+    hideLoading(iv);
+    renderResults({
+      dominant_mood:  'sadness',
+      dominant_emoji: '😢',
+      confidence:     0.61,
+      summary:        'Your music taste leans melancholic this week. Sometimes sad songs are the most honest.',
+      radar_scores: {
+        joy: 0.08, sadness: 0.61, anger: 0.05,
+        fear: 0.07, love: 0.14, surprise: 0.05
+      },
+      songs: [
+        { title: 'The Night We Met',     artist: 'Lord Huron', emotion: 'sadness', emoji: '😢', confidence: 0.82,
+          image: 'https://i.scdn.co/image/ab67616d0000b273f6c24f45d2a5a95de4f18957' },
+        { title: 'I Bet on Losing Dogs', artist: 'Mitski',     emotion: 'sadness', emoji: '😢', confidence: 0.74,
+          image: 'https://i.scdn.co/image/ab67616d0000b273e4de0764e1f4cdb27b5cab0e' },
+        { title: 'Jump',                 artist: 'BLACKPINK',  emotion: 'joy',     emoji: '😄', confidence: 0.79,
+          image: 'https://i.scdn.co/image/ab67616d0000b2735d48e2f56d691f9a4e4b0bdf' },
+        { title: 'Nobody',               artist: 'Mitski',     emotion: 'sadness', emoji: '😢', confidence: 0.68,
+          image: 'https://i.scdn.co/image/ab67616d0000b273e4de0764e1f4cdb27b5cab0e' },
+        { title: 'Liability',            artist: 'Lorde',      emotion: 'sadness', emoji: '😢', confidence: 0.71,
+          image: 'https://i.scdn.co/image/ab67616d0000b273c7539e11c6014f88a78a0cf8' },
+      ]
+    });
+  }, 3000);
+}
+
+// ── Render ────────────────────────────────────────────────────
+function renderResults(data, period = 'medium_term') {
+    document.getElementById('hero').style.display    = 'none';
+    document.getElementById('how').style.display     = 'none';
+    document.getElementById('results').style.display = 'block';
+
+    // Define meta FIRST before using it
+    const meta = MOOD_META[data.dominant_mood] || MOOD_META.joy;
+
+    const periodLabel = {
+        'short_term':  'this month',
+        'medium_term': 'these past 6 months',
+        'long_term':   'all time'
+    }[period] || 'recently';
+
+    // Now use meta safely
+    document.getElementById('mood-emoji').textContent   = meta.emoji;
+    document.getElementById('mood-title').textContent   = `${periodLabel} you've been feeling ${meta.label}`;
+    document.getElementById('mood-summary').textContent = data.summary;
+    document.getElementById('mood-confidence').textContent =
+        `${Math.round(data.confidence * 100)}% confidence`;
+
+    renderRadar(data.radar_scores);
+    renderBars(data.radar_scores);
+    renderSongs(data.songs);
+}
+
+
+function renderRadar(scores) {
+    if (radarChart) { radarChart.destroy(); }
+
+    // Filter out surprise
+    const filteredScores = Object.fromEntries(
+        Object.entries(scores).filter(([k]) => k !== 'surprise')
+    );
+
+    const labels = Object.keys(filteredScores).map(k =>
+        `${MOOD_META[k].emoji} ${MOOD_META[k].label}`
+    );
+    const values = Object.values(filteredScores).map(v => Math.round(v * 100));
+
+  radarChart = new Chart(document.getElementById('radar-chart'), {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: 'rgba(165,148,249,0.2)',
+        borderColor:     '#a594f9',
+        borderWidth:     2.5,
+        pointBackgroundColor: '#a594f9',
+        pointRadius:     5,
+        pointHoverRadius:7,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        r: {
+          min: 0, max: 100,
+          ticks: { display: false },
+          grid:  { color: 'rgba(255,255,255,0.06)' },
+          pointLabels: {
+            color:    '#9b91b8',
+            font:     { size: 12, family: 'DM Sans' }
+          },
+          angleLines: { color: 'rgba(255,255,255,0.06)' },
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+function renderBars(scores) {
+    const container = document.getElementById('score-bars');
+    container.innerHTML = '';
+
+    // Filter out surprise
+    const sorted = Object.entries(scores)
+        .filter(([k]) => k !== 'surprise')
+        .sort((a, b) => b[1] - a[1]);
+
+  sorted.forEach(([label, score]) => {
+    const meta = MOOD_META[label];
+    const pct  = Math.round(score * 100);
+    const row  = document.createElement('div');
+    row.className = 'score-row';
+    row.innerHTML = `
+      <span class="score-emoji">${meta.emoji}</span>
+      <span class="score-label">${meta.label}</span>
+      <div class="score-track">
+        <div class="score-fill" style="width:0%;background:${meta.color}" data-w="${pct}%"></div>
+      </div>
+      <span class="score-pct">${pct}%</span>
+    `;
+    container.appendChild(row);
+  });
+
+  // Animate bars
+  setTimeout(() => {
+    container.querySelectorAll('.score-fill').forEach(el => {
+      el.style.width = el.dataset.w;
+    });
+  }, 100);
+}
+
+function renderSongs(songs) {
+    const grid = document.getElementById('songs-grid');
+    grid.innerHTML = '';
+    songs.forEach(song => {
+        const meta = MOOD_META[song.emotion] || MOOD_META.joy;
+        const card = document.createElement('div');
+        card.className = 'song-card';
+        card.innerHTML = `
+            ${song.image
+                ? `<img class="song-img" src="${song.image}" 
+                     alt="${song.title}" 
+                     onerror="this.style.background='var(--surface2)';this.removeAttribute('src')">`
+                : `<div class="song-img"></div>`}
+            <div class="song-title" title="${song.title}">${song.title}</div>
+            <div class="song-artist">${song.artist}</div>
+            <span class="song-emotion">${meta.emoji} ${meta.label}</span>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function reset() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('hero').style.display    = 'flex';
+  document.getElementById('how').style.display     = 'block';
+  if (radarChart) { radarChart.destroy(); radarChart = null; }
+}
+</script>
+</body>
+</html>
