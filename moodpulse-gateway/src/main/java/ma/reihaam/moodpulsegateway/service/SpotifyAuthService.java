@@ -24,7 +24,7 @@ public class SpotifyAuthService {
     @Value("${spotify.client-secret}")
     private String clientSecret;
 
-    private static final String REDIRECT_URI  = "http://127.0.0.1:8080/callback";
+    private static final String REDIRECT_URI = "https://moodpulse-production.up.railway.app/callback";
     private static final String TOKEN_URL     = "https://accounts.spotify.com/api/token";
     private static final String AUTH_URL      = "https://accounts.spotify.com/authorize";
 
@@ -39,7 +39,7 @@ public class SpotifyAuthService {
                 + "?response_type=code"
                 + "&client_id=" + clientId.trim()
                 + "&scope=user-top-read%20user-read-private"
-                + "&redirect_uri=http%3A%2F%2F127.0.0.1%3A8080%2Fcallback"
+                + "&redirect_uri=https%3A%2F%2Fmoodpulse-production.up.railway.app%2Fcallback"
                 + "&state=" + state
                 + "&show_dialog=false";
     }
