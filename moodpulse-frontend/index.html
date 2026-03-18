@@ -426,6 +426,7 @@ async function analyzeWithToken(accessToken, period = 'medium_term') {
 }
 
 // ── Demo data (no Spotify needed) ────────────────────────────
+// the cnfidence are from the notebook (test set)
 function loadDemo() {
   const iv = showLoading();
   setTimeout(() => {
@@ -434,24 +435,19 @@ function loadDemo() {
       dominant_mood:  'sadness',
       dominant_emoji: '😢',
       confidence:     0.61,
-      summary:        'Your music taste leans melancholic this week. Sometimes sad songs are the most honest.',
+      summary:        'Your music taste leans melancholic these past 6 months. Sometimes sad songs are the most honest.',
       radar_scores: {
         joy: 0.08, sadness: 0.61, anger: 0.05,
         fear: 0.07, love: 0.14, surprise: 0.05
       },
       songs: [
-        { title: 'The Night We Met',     artist: 'Lord Huron', emotion: 'sadness', emoji: '😢', confidence: 0.82,
-          image: 'https://i.scdn.co/image/ab67616d0000b273f6c24f45d2a5a95de4f18957' },
-        { title: 'I Bet on Losing Dogs', artist: 'Mitski',     emotion: 'sadness', emoji: '😢', confidence: 0.74,
-          image: 'https://i.scdn.co/image/ab67616d0000b273e4de0764e1f4cdb27b5cab0e' },
-        { title: 'Jump',                 artist: 'BLACKPINK',  emotion: 'joy',     emoji: '😄', confidence: 0.79,
-          image: 'https://i.scdn.co/image/ab67616d0000b2735d48e2f56d691f9a4e4b0bdf' },
-        { title: 'Nobody',               artist: 'Mitski',     emotion: 'sadness', emoji: '😢', confidence: 0.68,
-          image: 'https://i.scdn.co/image/ab67616d0000b273e4de0764e1f4cdb27b5cab0e' },
-        { title: 'Liability',            artist: 'Lorde',      emotion: 'sadness', emoji: '😢', confidence: 0.71,
-          image: 'https://i.scdn.co/image/ab67616d0000b273c7539e11c6014f88a78a0cf8' },
+        { title: 'The Night We Met',     artist: 'Lord Huron',  emotion: 'sadness', emoji: '😢', confidence: 0.82, image: null },
+        { title: 'I Bet on Losing Dogs', artist: 'Mitski',      emotion: 'sadness', emoji: '😢', confidence: 0.74, image: null },
+        { title: 'Jump',                 artist: 'BLACKPINK',   emotion: 'joy',     emoji: '😄', confidence: 0.79, image: null },
+        { title: 'Nobody',               artist: 'Mitski',      emotion: 'sadness', emoji: '😢', confidence: 0.68, image: null },
+        { title: 'Liability',            artist: 'Lorde',       emotion: 'sadness', emoji: '😢', confidence: 0.71, image: null },
       ]
-    });
+    }, 'medium_term');
   }, 3000);
 }
 
