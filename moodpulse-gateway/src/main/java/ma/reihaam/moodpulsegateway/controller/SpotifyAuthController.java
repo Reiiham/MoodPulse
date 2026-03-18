@@ -39,7 +39,7 @@ public class SpotifyAuthController {
             HttpServletResponse response) throws IOException {
 
         if (error != null) {
-            response.sendRedirect("http://127.0.0.1:5500/moodpulse-frontend/index.html?error=" + error);
+            response.sendRedirect("https://mood-pulse-nine.vercel.app/index.html?error=" + error);
             return;
         }
 
@@ -56,7 +56,7 @@ public class SpotifyAuthController {
             log.info("Period extracted from state: {}", period);
 
             response.sendRedirect(
-                    "http://127.0.0.1:5500/moodpulse-frontend/index.html"
+                    "https://mood-pulse-nine.vercel.app/index.html"
                             + "?access_token=" + token.getAccessToken()
                             + "&expires_in=" + token.getExpiresIn()
                             + "&period=" + period
@@ -64,7 +64,7 @@ public class SpotifyAuthController {
 
         } catch (Exception e) {
             log.error("Token exchange failed: {}", e.getMessage(), e);
-            response.sendRedirect("http://127.0.0.1:5500/moodpulse-frontend/index.html?error=token_failed");
+            response.sendRedirect("https://mood-pulse-nine.vercel.app/index.html?error=token_failed");
         }
     }
 
