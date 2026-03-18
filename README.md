@@ -3,7 +3,7 @@
 > An end-to-end ML project that connects to your Spotify account, analyzes your top tracks using a fine-tuned DistilBERT model, and predicts your current emotional state with a beautiful radar chart visualization.
 
 ![MoodPulse Demo](docs/demo.png)
-
+![MoodPulse Demo](docs/image.png)
 ---
 
 ## ✨ What it does
