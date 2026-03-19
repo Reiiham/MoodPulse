@@ -15,6 +15,17 @@
 5. **Mood report** — Beautiful radar chart + per-song breakdown
 
 ---
+## 🚀 Try it live
+
+**Live demo:** [mood-pulse-nine.vercel.app](https://mood-pulse-nine.vercel.app)
+
+### Option 1 — No account needed
+Click **"Try demo"** on the homepage to see a sample mood analysis instantly, no Spotify required.
+
+### Option 2 — Use your real Spotify data
+The app is currently in Spotify Development Mode (5 user limit).
+
+To analyze your real top tracks, [open an access request](https://github.com/Reiiham/MoodPulse/issues/new?title=Spotify+Access+Request&body=Hi+Siham!+I'd+love+to+try+MoodPulse+with+my+real+Spotify+data.%0A%0AMy+Spotify+email:+) and I'll add you within 24h!
 
 ## 🧠 ML Model
 
